@@ -6,4 +6,5 @@ import (
 
 type TodoRepository interface {
 	GetAll() ([]model.Todo, error)
+	Create(todo model.Todo)
 }

@@ -4,14 +4,15 @@ import (
 	"github.com/lluxy8/todo-app-go/internal/handler"
 	"github.com/lluxy8/todo-app-go/internal/repository"
 	"github.com/lluxy8/todo-app-go/internal/service"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/gin-gonic/gin"
 )
 
-func New() *gin.Engine {
+func New(mongo *mongo.Client) *gin.Engine {
 	r := gin.Default()
 
-	todoRepo := repository.NewMemoryTodoRepo()
+	todoRepo := repository.NewTodoRepo(mongo)
 	todoService := service.NewTodoService(todoRepo)
 	todoHandler := handler.NewTodoHandler(todoService)
 

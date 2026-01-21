@@ -4,16 +4,23 @@ import (
 	"time"
 
 	"github.com/lluxy8/todo-app-go/internal/model"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type MemoryTodoRepo struct{}
-
-func NewMemoryTodoRepo() TodoRepository {
-	return &MemoryTodoRepo{}
+type TodoRepo struct {
+	client *mongo.Client
 }
 
-func (r *MemoryTodoRepo) GetAll() ([]model.Todo, error) {
+func NewTodoRepo(client *mongo.Client) TodoRepository {
+	return &TodoRepo{client: client}
+}
+
+func (r *TodoRepo) GetAll() ([]model.Todo, error) {
 	return inMemoryTodos, nil
+}
+
+func (r *TodoRepo) Create(todo model.Todo) {
+	inMemoryTodos = append(inMemoryTodos, todo)
 }
 
 var inMemoryTodos []model.Todo = []model.Todo{
