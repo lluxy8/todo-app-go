@@ -2,7 +2,8 @@ package main
 
 import (
 	"log"
-	"todo-app/internal/router"
+
+	"github.com/lluxy8/todo-app-go/internal/router"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-module todo-app
+module github.com/lluxy8/todo-app-go
 
 go 1.25.6
 

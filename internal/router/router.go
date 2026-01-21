@@ -1,9 +1,9 @@
 package router
 
 import (
-	"todo-app/internal/handler"
-	"todo-app/internal/repository"
-	"todo-app/internal/service"
+	"github.com/lluxy8/todo-app-go/internal/handler"
+	"github.com/lluxy8/todo-app-go/internal/repository"
+	"github.com/lluxy8/todo-app-go/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

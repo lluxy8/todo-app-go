@@ -1,8 +1,8 @@
 package service
 
 import (
-	"todo-app/internal/model"
-	"todo-app/internal/repository"
+	"github.com/lluxy8/todo-app-go/internal/model"
+	"github.com/lluxy8/todo-app-go/internal/repository"
 )
 
 type todoService struct {

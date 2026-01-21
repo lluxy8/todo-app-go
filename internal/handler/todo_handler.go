@@ -2,7 +2,8 @@ package handler
 
 import (
 	"net/http"
-	"todo-app/internal/service"
+
+	"github.com/lluxy8/todo-app-go/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,7 +2,8 @@ package repository
 
 import (
 	"time"
-	"todo-app/internal/model"
+
+	"github.com/lluxy8/todo-app-go/internal/model"
 )
 
 type MemoryTodoRepo struct{}

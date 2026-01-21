@@ -6,8 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
-	"todo-app/internal/handler"
-	"todo-app/internal/model"
+
+	"github.com/lluxy8/todo-app-go/internal/handler"
+	"github.com/lluxy8/todo-app-go/internal/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"

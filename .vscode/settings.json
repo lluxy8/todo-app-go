@@ -1,0 +1,8 @@
+{
+  "go.testFlags": ["./..."],
+  "go.testOnSave": false,
+  "go.useLanguageServer": true,
+  "go.toolsEnvVars": {
+    "GO111MODULE": "on"
+  }
+}
