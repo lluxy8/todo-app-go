@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -39,7 +40,7 @@ func TestGetTodos(t *testing.T) {
 
 type fakeTodoService struct{}
 
-func (h *fakeTodoService) GetAll() ([]model.Todo, error) {
+func (h *fakeTodoService) GetAll(context context.Context) ([]model.Todo, error) {
 	return fakeData(), nil
 }
 
@@ -59,9 +60,9 @@ func setupRouter() *gin.Engine {
 func fakeData() []model.Todo {
 	return []model.Todo{
 		{
-			Id:          1,
-			Title:       "MyTodo1",
-			Description: "This is MyTodo1.",
+			ID:          "69718bdf78dd80d4f16a1792",
+			Title:       "My Todo",
+			Description: "This is my todo.",
 			DueDate:     time.Date(2027, time.April, 12, 17, 30, 12, 53, time.UTC),
 		},
 	}

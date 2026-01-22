@@ -19,14 +19,19 @@ func main() {
 	}
 
 	mongo := connectMongo(cfg)
-	defer func ()  {
-		_= mongo.Disconnect(context.Background())
+	defer func() {
+		_ = mongo.Disconnect(context.Background())
 	}()
 
 	log.Println("MongoDB connected successfully")
 	log.Println("App running on port:", cfg.App.Port)
 
-	r := router.New(mongo)
+	db := mongo.Database(cfg.Mongo.Database)
+	todoCollection := db.Collection("todos")
+	r := router.New(router.RouterDeps{
+		Cfg:            cfg,
+		TodoCollection: todoCollection,
+	})
 	if err := r.Run(":" + cfg.App.Port); err != nil {
 		log.Fatal(err)
 	}

@@ -17,7 +17,7 @@ func NewTodoHandler(ts service.TodoService) *TodoHandler {
 }
 
 func (h *TodoHandler) GetAll(c *gin.Context) {
-	todos, err := h.todoService.GetAll()
+	todos, err := h.todoService.GetAll(c)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

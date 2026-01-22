@@ -1,9 +1,11 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Todo struct {
-	Id          int       `json:"id"`
+	ID          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	DueDate     time.Time `json:"dueDate"`
