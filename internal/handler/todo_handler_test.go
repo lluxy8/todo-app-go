@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -9,7 +10,9 @@ import (
 	"time"
 
 	"github.com/lluxy8/todo-app-go/internal/handler"
+	"github.com/lluxy8/todo-app-go/internal/handler/dto"
 	"github.com/lluxy8/todo-app-go/internal/model"
+	"github.com/lluxy8/todo-app-go/internal/repository"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -17,9 +20,8 @@ import (
 )
 
 func TestGetTodos(t *testing.T) {
-
 	// arrange
-	r := setupRouter()
+	r, _ := setupRouter()
 
 	req, _ := http.NewRequest(http.MethodGet, "/todos", nil)
 	w := httptest.NewRecorder()
@@ -38,23 +40,123 @@ func TestGetTodos(t *testing.T) {
 	assert.Equal(t, fakeData(), actual)
 }
 
-type fakeTodoService struct{}
+func TestGetTodosByID_OK(t *testing.T) {
+	// arrange
+	r, _ := setupRouter()
 
-func (h *fakeTodoService) GetAll(context context.Context) ([]model.Todo, error) {
-	return fakeData(), nil
+	req, _ := http.NewRequest(
+		http.MethodGet,
+		"/todos/69718bdf78dd80d4f16a1792",
+		nil,
+	)
+	w := httptest.NewRecorder()
+
+	// act
+	r.ServeHTTP(w, req)
+
+	// assert
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var actuel model.Todo
+	err := json.Unmarshal(w.Body.Bytes(), &actuel)
+	require.NoError(t, err)
+
+	assert.Equal(t, fakeData()[0], actuel)
 }
 
-func setupRouter() *gin.Engine {
+func TestGetTodosByID_NotFound(t *testing.T) {
+	// arrange
+	r, _ := setupRouter()
+	req, _ := http.NewRequest(http.MethodGet, "/todos/unkown-id", nil)
+	w := httptest.NewRecorder()
+
+	//act
+	r.ServeHTTP(w, req)
+
+	// assert
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+func TestCreateTodos_Created(t *testing.T) {
+	// arrange
+	r, service := setupRouter()
+
+	createRequest := dto.CreateTodoRequest{
+		Title:       "My Todo 2",
+		Description: "This is my todo 2!",
+		DueDate:     time.Date(2027, time.April, 12, 17, 30, 12, 53, time.UTC),
+	}
+
+	body, err := json.Marshal(createRequest)
+	require.NoError(t, err)
+
+	req, _ := http.NewRequest(http.MethodPost, "/todos", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+
+	// act
+	r.ServeHTTP(w, req)
+
+	// assert
+	assert.Equal(t, http.StatusCreated, w.Code)
+	assert.Len(t, service.todos, 2)
+}
+
+func TestCreateTodo_BadRequest(t *testing.T) {
+	r, _ := setupRouter()
+
+	req, _ := http.NewRequest(
+		http.MethodPost,
+		"/todos",
+		bytes.NewBufferString(`{invalid-json}`),
+	)
+	req.Header.Set("Content-Type", "application/json")
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+type fakeTodoService struct {
+	todos []model.Todo
+}
+
+func (s *fakeTodoService) GetAll(ctx context.Context) ([]model.Todo, error) {
+	return s.todos, nil
+}
+
+func (s *fakeTodoService) GetById(id string, ctx context.Context) (model.Todo, error) {
+	for _, t := range s.todos {
+		if t.ID == id {
+			return t, nil
+		}
+	}
+
+	return model.Todo{}, repository.ErrNotFound
+}
+
+func (s *fakeTodoService) Create(todo model.Todo, ctx context.Context) error {
+	s.todos = append(s.todos, todo)
+	return nil
+}
+
+func setupRouter() (*gin.Engine, *fakeTodoService) {
 	gin.SetMode(gin.TestMode)
 
 	r := gin.New()
 
-	todoService := &fakeTodoService{}
+	todoService := &fakeTodoService{
+		todos: fakeData(),
+	}
 	todoHandler := handler.NewTodoHandler(todoService)
 
 	r.GET("/todos", todoHandler.GetAll)
+	r.GET("/todos/:id", todoHandler.GetById)
+	r.POST("/todos", todoHandler.Create)
 
-	return r
+	return r, todoService
 }
 
 func fakeData() []model.Todo {

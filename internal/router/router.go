@@ -12,7 +12,7 @@ import (
 
 type RouterDeps struct {
 	TodoCollection *mongoDriver.Collection
-	Cfg *config.Config
+	Cfg            *config.Config
 }
 
 func New(deps RouterDeps) *gin.Engine {
@@ -23,7 +23,10 @@ func New(deps RouterDeps) *gin.Engine {
 	todoHandler := handler.NewTodoHandler(todoService)
 
 	r.GET("/health", handler.Health)
+
 	r.GET("/todos", todoHandler.GetAll)
+	r.GET("/todos/:id", todoHandler.GetById)
+	r.POST("/todos", todoHandler.Create)
 
 	return r
 }

@@ -15,6 +15,14 @@ func NewTodoService(repo repository.TodoRepository) TodoService {
 	return &todoService{repo: repo}
 }
 
-func (s *todoService) GetAll(context context.Context) ([]model.Todo, error) {
-	return s.repo.GetAll(context)
+func (s *todoService) GetAll(ctx context.Context) ([]model.Todo, error) {
+	return s.repo.GetAll(ctx)
+}
+
+func (s *todoService) GetById(id string, ctx context.Context) (model.Todo, error) {
+	return s.repo.GetById(id, ctx)
+}
+
+func (s *todoService) Create(todo model.Todo, ctx context.Context) error {
+	return s.repo.Create(todo, ctx)
 }

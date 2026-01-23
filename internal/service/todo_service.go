@@ -7,5 +7,7 @@ import (
 )
 
 type TodoService interface {
-	GetAll(context context.Context) ([]model.Todo, error)
+	GetAll(ctx context.Context) ([]model.Todo, error)
+	GetById(id string, ctx context.Context) (model.Todo, error)
+	Create(todo model.Todo, ctx context.Context) error
 }
