@@ -77,15 +77,21 @@ func handleRepoError(ctx *gin.Context, err error) bool {
 		return false
 	}
 
-	if errors.Is(err, repository.ErrNotFound) {
+	switch {
+	case errors.Is(err, service.ErrTodoDoesNotExist):
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": err.Error(),
+		})
+		return true
+	case errors.Is(err, repository.ErrNotFound):
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "no items found",
 		})
 		return true
+	default:
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "internal server error",
+		})
+		return true
 	}
-
-	ctx.JSON(http.StatusInternalServerError, gin.H{
-		"error": "internal server error",
-	})
-	return true
 }

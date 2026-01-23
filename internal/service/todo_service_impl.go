@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/lluxy8/todo-app-go/internal/model"
 	"github.com/lluxy8/todo-app-go/internal/repository"
@@ -16,13 +17,37 @@ func NewTodoService(repo repository.TodoRepository) TodoService {
 }
 
 func (s *todoService) GetAll(ctx context.Context) ([]model.Todo, error) {
-	return s.repo.GetAll(ctx)
+	todo, err := s.repo.GetAll(ctx)
+	if err != nil {
+		return nil, mapError(err)
+	}
+
+	return todo, nil
 }
 
 func (s *todoService) GetById(id string, ctx context.Context) (model.Todo, error) {
-	return s.repo.GetById(id, ctx)
+	todo, err := s.repo.GetById(id, ctx)
+	if err != nil {
+		return model.Todo{}, mapError(err)
+	}
+
+	return todo, nil
 }
 
 func (s *todoService) Create(todo model.Todo, ctx context.Context) error {
-	return s.repo.Create(todo, ctx)
+	err := s.repo.Create(todo, ctx)
+	if err != nil {
+		return mapError(err)
+	}
+
+	return nil
+}
+
+func mapError(err error) error {
+	switch {
+	case errors.Is(err, repository.ErrNotFound):
+		return ErrTodoDoesNotExist
+	default:
+		return nil
+	}
 }
