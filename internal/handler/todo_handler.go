@@ -7,7 +7,6 @@ import (
 
 	"github.com/lluxy8/todo-app-go/internal/handler/dto"
 	"github.com/lluxy8/todo-app-go/internal/model"
-	"github.com/lluxy8/todo-app-go/internal/repository"
 	"github.com/lluxy8/todo-app-go/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -81,11 +80,6 @@ func handleRepoError(ctx *gin.Context, err error) bool {
 	case errors.Is(err, service.ErrTodoDoesNotExist):
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": err.Error(),
-		})
-		return true
-	case errors.Is(err, repository.ErrNotFound):
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": "no items found",
 		})
 		return true
 	default:
