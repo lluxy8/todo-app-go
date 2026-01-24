@@ -1,0 +1,29 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: todo-mongo-debug
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongo_data_debug:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
+  api:
+    build:
+      context: .
+      target: debug
+    container_name: todo-api-debug
+    env_file:
+      - .env 
+    ports:
+      - "40000:40000"
+    depends_on:
+      - mongo
+    security_opt:
+      - seccomp:unconfined
+
+volumes:
+  mongo_data_debug:

@@ -67,7 +67,12 @@ func TestGetTodosByID_OK(t *testing.T) {
 func TestGetTodosByID_NotFound(t *testing.T) {
 	// arrange
 	r, _ := setupRouter()
-	req, _ := http.NewRequest(http.MethodGet, "/todos/unkown-id", nil)
+
+	req, _ := http.NewRequest(
+		http.MethodGet, 
+		"/todos/unkown", 
+		nil,
+	)
 	w := httptest.NewRecorder()
 
 	//act

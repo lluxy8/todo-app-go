@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetAll_OK(t *testing.T) {
+func TestTodoService_GetAll_OK(t *testing.T) {
 	// arrange
 	repo := fakeTodoRepo{
 		getAllFn: func(ctx context.Context) ([]model.Todo, error) {
@@ -40,14 +40,14 @@ func TestTodoService_GetAll_Error(t *testing.T) {
 		},
 	}
 
-	service := service.NewTodoService(repo)
+	todoService := service.NewTodoService(repo)
 
 	// act
-	result, err := service.GetAll(context.Background())
+	result, err := todoService.GetAll(context.Background())
 
 	// assert
 	assert.Nil(t, result)
-	assert.ErrorIs(t, err, expectedErr)
+	assert.ErrorIs(t, err, service.ErrInternal)
 }
 
 func TestTodoService_GetById_OK(t *testing.T) {
