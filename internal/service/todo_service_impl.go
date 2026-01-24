@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
 
 	"github.com/lluxy8/todo-app-go/internal/model"
 	"github.com/lluxy8/todo-app-go/internal/repository"
@@ -48,6 +50,7 @@ func mapError(err error) error {
 	case errors.Is(err, repository.ErrNotFound):
 		return ErrTodoDoesNotExist
 	default:
-		return nil
+		log.Printf("unexpected repo error: %+v", err)
+		return fmt.Errorf("%w: %v", ErrInternal, err)
 	}
 }

@@ -23,7 +23,7 @@ func NewTodoHandler(ts service.TodoService) *TodoHandler {
 func (h *TodoHandler) GetAll(ctx *gin.Context) {
 	todos, err := h.todoService.GetAll(ctx.Request.Context())
 
-	if handleRepoError(ctx, err) {
+	if handleServiceError(ctx, err) {
 		return
 	}
 
@@ -47,7 +47,7 @@ func (h *TodoHandler) Create(ctx *gin.Context) {
 	}
 
 	err := h.todoService.Create(todo, ctx.Request.Context())
-	if handleRepoError(ctx, err) {
+	if handleServiceError(ctx, err) {
 		return
 	}
 
@@ -64,14 +64,14 @@ func (h *TodoHandler) GetById(ctx *gin.Context) {
 	}
 
 	todo, err := h.todoService.GetById(id, ctx.Request.Context())
-	if handleRepoError(ctx, err) {
+	if handleServiceError(ctx, err) {
 		return
 	}
 
 	ctx.JSON(http.StatusOK, todo)
 }
 
-func handleRepoError(ctx *gin.Context, err error) bool {
+func handleServiceError(ctx *gin.Context, err error) bool {
 	if err == nil {
 		return false
 	}
@@ -79,13 +79,17 @@ func handleRepoError(ctx *gin.Context, err error) bool {
 	switch {
 	case errors.Is(err, service.ErrTodoDoesNotExist):
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": err.Error(),
+			"error": "todo not found",
 		})
-		return true
+	case errors.Is(err, service.ErrInternal):
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "internal server error",
+		})
 	default:
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "internal server error",
 		})
-		return true
 	}
+
+	return true
 }
