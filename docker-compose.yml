@@ -24,17 +24,5 @@ services:
       - mongo
     restart: unless-stopped
 
-  mongo-test:
-    image: mongo
-    container_name: todo-mongo-test
-    ports:
-      - "27018:27017"
-    environment:
-      MONGO_INITDB_DATABASE: todo_test
-    volumes:
-      - mongo_test_data:/data/db   
-    restart: unless-stopped
-
 volumes:
   mongo_data:
-  mongo_test_data:
