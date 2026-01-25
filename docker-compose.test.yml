@@ -1,9 +1,0 @@
-version: "3.9"
-
-services:
-  mongo:
-    container_name: todo-mongo-test
-    ports:
-      - "27018:27017"
-    environment:
-      MONGO_INITDB_DATABASE: todo_test
