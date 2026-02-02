@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetTodos(t *testing.T) {
+func TestTodoHandler_GetAll_Ok(t *testing.T) {
 	// arrange
 	r, _ := setupRouter()
 
@@ -40,7 +40,7 @@ func TestGetTodos(t *testing.T) {
 	assert.Equal(t, fakeData(), actual)
 }
 
-func TestGetTodosByID_OK(t *testing.T) {
+func TestTodoHandler_GetById_Ok(t *testing.T) {
 	// arrange
 	r, _ := setupRouter()
 
@@ -64,7 +64,7 @@ func TestGetTodosByID_OK(t *testing.T) {
 	assert.Equal(t, fakeData()[0], actuel)
 }
 
-func TestGetTodosByID_NotFound(t *testing.T) {
+func TestTodoHandler_GetById_NotFound(t *testing.T) {
 	// arrange
 	r, _ := setupRouter()
 
@@ -82,7 +82,7 @@ func TestGetTodosByID_NotFound(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
-func TestCreateTodos_Created(t *testing.T) {
+func TestTodoHandler_Create_Ok(t *testing.T) {
 	// arrange
 	r, service := setupRouter()
 
@@ -108,7 +108,7 @@ func TestCreateTodos_Created(t *testing.T) {
 	assert.Len(t, service.todos, 2)
 }
 
-func TestCreateTodo_BadRequest(t *testing.T) {
+func TestTodoHandler_Create_BadRequest(t *testing.T) {
 	r, _ := setupRouter()
 
 	req, _ := http.NewRequest(
