@@ -13,6 +13,7 @@ import (
 	"github.com/lluxy8/todo-app-go/internal/handler/dto"
 	"github.com/lluxy8/todo-app-go/internal/model"
 	"github.com/lluxy8/todo-app-go/internal/repository"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -46,7 +47,7 @@ func TestTodoHandler_GetById_Ok(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		"/todos/69718bdf78dd80d4f16a1792",
+		"/todos/"+fakeData()[0].ID,
 		nil,
 	)
 	w := httptest.NewRecorder()
@@ -57,11 +58,11 @@ func TestTodoHandler_GetById_Ok(t *testing.T) {
 	// assert
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var actuel model.Todo
-	err := json.Unmarshal(w.Body.Bytes(), &actuel)
+	var actual model.Todo
+	err := json.Unmarshal(w.Body.Bytes(), &actual)
 	require.NoError(t, err)
 
-	assert.Equal(t, fakeData()[0], actuel)
+	assert.Equal(t, fakeData()[0], actual)
 }
 
 func TestTodoHandler_GetById_NotFound(t *testing.T) {
@@ -70,7 +71,7 @@ func TestTodoHandler_GetById_NotFound(t *testing.T) {
 
 	req, _ := http.NewRequest(
 		http.MethodGet,
-		"/todos/unkown",
+		"/todos/"+primitive.NewObjectID().String(),
 		nil,
 	)
 	w := httptest.NewRecorder()
@@ -122,6 +123,21 @@ func TestTodoHandler_Create_BadRequest(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestTodoHandler_Delete_Ok(t *testing.T) {
+	r, _ := setupRouter()
+
+	req, _ := http.NewRequest(
+		http.MethodDelete,
+		"/todos/"+fakeData()[0].ID,
+		nil,
+	)
+
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 type fakeTodoService struct {
@@ -183,6 +199,8 @@ func setupRouter() (*gin.Engine, *fakeTodoService) {
 	r.GET("/todos", todoHandler.GetAll)
 	r.GET("/todos/:id", todoHandler.GetById)
 	r.POST("/todos", todoHandler.Create)
+	r.PATCH("/todos/:id", todoHandler.Update)
+	r.DELETE("/todos/:id", todoHandler.Delete)
 
 	return r, todoService
 }
