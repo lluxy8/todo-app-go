@@ -74,11 +74,12 @@ func TestTodoService_GetById_OK(t *testing.T) {
 func TestTodoService_Create_OK(t *testing.T) {
 	// arrange
 	called := false
+	expectedId := "fake-id"
 
 	repo := &fakeTodoRepo{
 		createFn: func(todo model.Todo, ctx context.Context) error {
 			called = true
-			assert.Equal(t, "My Todo", todo.Title)
+			assert.Equal(t, expectedId, todo.ID)
 			return nil
 		},
 	}
@@ -86,7 +87,54 @@ func TestTodoService_Create_OK(t *testing.T) {
 	service := service.NewTodoService(repo)
 
 	// act
-	err := service.Create(model.Todo{Title: "My Todo"}, context.Background())
+	err := service.Create(model.Todo{ID: expectedId}, context.Background())
+
+	// assert
+	require.NoError(t, err)
+	assert.True(t, called)
+}
+
+func TestTodoService_Update_Ok(t *testing.T) {
+	// arrange
+	called := false
+	expectedId := "fake-id"
+
+	repo := &fakeTodoRepo{
+		updateFn: func(id string, todo model.Todo, ctx context.Context) error {
+			called = true
+			assert.Equal(t, id, expectedId)
+			assert.Equal(t, id, todo.ID)
+			return nil
+		},
+	}
+
+	service := service.NewTodoService(repo)
+
+	// act
+	err := service.Update(expectedId, model.Todo{ID: expectedId}, context.Background())
+
+	// assert
+	require.NoError(t, err)
+	assert.True(t, called)
+}
+
+func TestTodoService_Delete_Ok(t *testing.T) {
+	// arrange
+	called := false
+	expectedid := "fake-id"
+
+	repo := &fakeTodoRepo{
+		deleteFn: func(id string, ctx context.Context) error {
+			called = true
+			assert.Equal(t, expectedid, id)
+			return nil
+		},
+	}
+
+	service := service.NewTodoService(repo)
+
+	// act
+	err := service.Delete(expectedid, context.Background())
 
 	// assert
 	require.NoError(t, err)
@@ -97,6 +145,8 @@ type fakeTodoRepo struct {
 	getAllFn  func(ctx context.Context) ([]model.Todo, error)
 	getByIdFn func(id string, ctx context.Context) (model.Todo, error)
 	createFn  func(todo model.Todo, ctx context.Context) error
+	deleteFn  func(id string, ctx context.Context) error
+	updateFn  func(id string, todo model.Todo, ctx context.Context) error
 }
 
 func (f *fakeTodoRepo) GetAll(ctx context.Context) ([]model.Todo, error) {
@@ -112,11 +162,11 @@ func (f *fakeTodoRepo) Create(todo model.Todo, ctx context.Context) error {
 }
 
 func (f *fakeTodoRepo) Delete(id string, ctx context.Context) error {
-	return f.Delete(id, ctx)
+	return f.deleteFn(id, ctx)
 }
 
 func (f *fakeTodoRepo) Update(id string, todo model.Todo, ctx context.Context) error {
-	return f.Update(id, todo, ctx)
+	return f.updateFn(id, todo, ctx)
 }
 
 func fakeData() []model.Todo {
