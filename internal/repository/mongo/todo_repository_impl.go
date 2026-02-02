@@ -139,15 +139,3 @@ func (r *TodoMongoRepository) Update(id string, todo model.Todo, ctx context.Con
 
 	return nil
 }
-
-func withTimeout(
-	parent context.Context,
-	timeout time.Duration,
-) (context.Context, context.CancelFunc) {
-
-	if parent == nil {
-		parent = context.Background()
-	}
-
-	return context.WithTimeout(parent, timeout)
-}

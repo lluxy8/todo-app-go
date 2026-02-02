@@ -2,9 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"log"
 
 	"github.com/lluxy8/todo-app-go/internal/model"
 	"github.com/lluxy8/todo-app-go/internal/repository"
@@ -55,20 +52,10 @@ func (s *todoService) Delete(id string, ctx context.Context) error {
 }
 
 func (s *todoService) Update(id string, todo model.Todo, ctx context.Context) error {
-	err := s.repo.Update(id, todo,  ctx)
+	err := s.repo.Update(id, todo, ctx)
 	if err != nil {
 		return mapError(err)
 	}
 
 	return nil
-}
-
-func mapError(err error) error {
-	switch {
-	case errors.Is(err, repository.ErrNotFound):
-		return ErrTodoDoesNotExist
-	default:
-		log.Printf("unexpected repo error: %+v", err)
-		return fmt.Errorf("%w: %v", ErrInternal, err)
-	}
 }
