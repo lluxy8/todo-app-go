@@ -111,13 +111,21 @@ func (f *fakeTodoRepo) Create(todo model.Todo, ctx context.Context) error {
 	return f.createFn(todo, ctx)
 }
 
+func (f *fakeTodoRepo) Delete(id string, ctx context.Context) error {
+	return f.Delete(id, ctx)
+}
+
+func (f *fakeTodoRepo) Update(id string, todo model.Todo, ctx context.Context) error {
+	return f.Update(id, todo, ctx)
+}
+
 func fakeData() []model.Todo {
 	return []model.Todo{
 		{
 			ID:          "69718bdf78dd80d4f16a1792",
 			Title:       "My Todo",
 			Description: "This is my todo.",
-			DueDate:     time.Date(2027, time.April, 12, 17, 30, 12, 53, time.UTC),
+			DueDate:     time.Date(2027, time.April, 12, 17, 30, 12, 0, time.UTC),
 		},
 	}
 }

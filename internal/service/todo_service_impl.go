@@ -45,6 +45,24 @@ func (s *todoService) Create(todo model.Todo, ctx context.Context) error {
 	return nil
 }
 
+func (s *todoService) Delete(id string, ctx context.Context) error {
+	err := s.repo.Delete(id, ctx)
+	if err != nil {
+		return mapError(err)
+	}
+
+	return nil
+}
+
+func (s *todoService) Update(id string, todo model.Todo, ctx context.Context) error {
+	err := s.repo.Update(id, todo,  ctx)
+	if err != nil {
+		return mapError(err)
+	}
+
+	return nil
+}
+
 func mapError(err error) error {
 	switch {
 	case errors.Is(err, repository.ErrNotFound):

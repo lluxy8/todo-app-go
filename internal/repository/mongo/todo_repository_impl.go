@@ -81,6 +81,65 @@ func (r *TodoMongoRepository) GetById(id string, ctx context.Context) (model.Tod
 	return toDomain(doc), nil
 }
 
+func (r *TodoMongoRepository) Delete(id string, ctx context.Context) error {
+	ctx, cancel := withTimeout(ctx, r.timeout)
+	defer cancel()
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	result, err := r.collection.DeleteOne(
+		ctx,
+		bson.M{"_id": objectID},
+	)
+
+	if err != nil {
+		return nil
+	}
+
+	if result.DeletedCount == 0 {
+		return repository.ErrNotFound
+	}
+
+	return nil
+}
+
+func (r *TodoMongoRepository) Update(id string, todo model.Todo, ctx context.Context) error {
+	ctx, cancel := withTimeout(ctx, r.timeout)
+	defer cancel()
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"title":       todo.Title,
+			"description": todo.Description,
+			"dueDate":     todo.DueDate,
+		},
+	}
+
+	result, err := r.collection.UpdateOne(
+		ctx,
+		bson.M{"_id": objectID},
+		update,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return repository.ErrNotFound
+	}
+
+	return nil
+}
+
 func withTimeout(
 	parent context.Context,
 	timeout time.Duration,

@@ -2,6 +2,7 @@ package mongo_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -21,12 +22,7 @@ func TestTodoRepository_CreateAndGetAll_OK(t *testing.T) {
 
 	repo := mongo.NewTodoRepo(collection, 5*time.Second)
 
-	todo := model.Todo{
-		ID:          "69718bdf78dd80d4f16a1792",
-		Title:       "Test Todo",
-		Description: "This is my todo.",
-		DueDate:     time.Date(2027, time.April, 12, 17, 30, 12, 53, time.UTC),
-	}
+	todo := fakeData()
 
 	// Act
 	err := repo.Create(todo, context.Background())
@@ -55,6 +51,81 @@ func TestTodoRepository_GetById_NotFound(t *testing.T) {
 	assert.Error(t, err, repository.ErrNotFound)
 }
 
+func TestTodoRepository_Update_OK(t *testing.T) {
+	// Arrange
+	_, collection := setupTestMongo(t)
+	repo := mongo.NewTodoRepo(collection, 5*time.Second)
+
+	existing := fakeData()
+	err := repo.Create(existing, context.Background())
+	assert.NoError(t, err)
+
+	updated := existing
+	updated.Title = "updated"
+	updated.Description = "updated"
+	updated.DueDate = time.Date(
+		2028, time.April, 12, 17, 30, 12, 0, time.UTC,
+	)
+
+	// Act
+	err = repo.Update(updated.ID, updated, context.Background())
+
+	// Assert
+	assert.NoError(t, err)
+
+	actual, err := repo.GetById(updated.ID, context.Background())
+	assert.NoError(t, err)
+
+	assert.Equal(t, updated.ID, actual.ID)
+	assert.Equal(t, updated.Title, actual.Title)
+	assert.Equal(t, updated.Description, actual.Description)
+	assert.True(t, updated.DueDate.Equal(actual.DueDate))
+}
+
+func TestTodoReposiory_Update_NotFound(t *testing.T) {
+	// arrange
+	_, collection := setupTestMongo(t)
+	repo := mongo.NewTodoRepo(collection, 5*time.Second)
+
+	// act
+	err := repo.Update(primitive.NewObjectID().Hex(), fakeData(), context.Background())
+
+	// assert
+	assert.True(t, errors.Is(err, repository.ErrNotFound))
+}
+
+
+func TestTodoRepository_Delete_OK(t *testing.T) {
+	// arrange
+	_, collection := setupTestMongo(t)
+	repo := mongo.NewTodoRepo(collection, 5*time.Second)
+
+	todo := fakeData()
+	err := repo.Create(todo, context.Background())
+	assert.NoError(t, err)
+
+	//act
+	err = repo.Delete(todo.ID, context.Background())
+
+	// assert
+	assert.NoError(t, err)
+
+	_, err = repo.GetById(todo.ID, context.Background())
+	assert.True(t, errors.Is(err, repository.ErrNotFound))
+}
+
+func TestTodoRepository_Delete_NotFound(t *testing.T) {
+	// arrange
+	_, collection := setupTestMongo(t)
+	repo := mongo.NewTodoRepo(collection, 5*time.Second)
+
+	// act
+	err := repo.Delete(primitive.NewObjectID().Hex(), context.Background())
+
+	// assert
+	assert.True(t, errors.Is(err, repository.ErrNotFound))
+}
+
 func setupTestMongo(t *testing.T) (*mongoDriver.Client, *mongoDriver.Collection) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	t.Cleanup(cancel)
@@ -73,4 +144,13 @@ func setupTestMongo(t *testing.T) (*mongoDriver.Client, *mongoDriver.Collection)
 	})
 
 	return client, colllection
+}
+
+func fakeData() model.Todo {
+	return model.Todo{
+		ID:          "69718bdf78dd80d4f16a1792",
+		Title:       "Test Todo",
+		Description: "This is my todo.",
+		DueDate:     time.Date(2027, time.April, 12, 17, 30, 12, 0, time.UTC),
+	}
 }

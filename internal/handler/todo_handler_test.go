@@ -69,8 +69,8 @@ func TestGetTodosByID_NotFound(t *testing.T) {
 	r, _ := setupRouter()
 
 	req, _ := http.NewRequest(
-		http.MethodGet, 
-		"/todos/unkown", 
+		http.MethodGet,
+		"/todos/unkown",
 		nil,
 	)
 	w := httptest.NewRecorder()
@@ -147,6 +147,29 @@ func (s *fakeTodoService) Create(todo model.Todo, ctx context.Context) error {
 	return nil
 }
 
+func (s *fakeTodoService) Delete(id string, ctx context.Context) error {
+	for i, todo := range s.todos {
+		if todo.ID == id {
+			s.todos = append(s.todos[:i], s.todos[i+1:]...)
+			return nil
+		}
+	}
+
+	return repository.ErrNotFound
+}
+
+func (s *fakeTodoService) Update(id string, todo model.Todo, ctx context.Context) error {
+	for i := range s.todos {
+		if s.todos[i].ID == id {
+			todo.ID = id
+			s.todos[i] = todo
+			return nil
+		}
+	}
+
+	return repository.ErrNotFound
+}
+
 func setupRouter() (*gin.Engine, *fakeTodoService) {
 	gin.SetMode(gin.TestMode)
 
@@ -170,7 +193,7 @@ func fakeData() []model.Todo {
 			ID:          "69718bdf78dd80d4f16a1792",
 			Title:       "My Todo",
 			Description: "This is my todo.",
-			DueDate:     time.Date(2027, time.April, 12, 17, 30, 12, 53, time.UTC),
+			DueDate:     time.Date(2027, time.April, 12, 17, 30, 12, 0, time.UTC),
 		},
 	}
 }
