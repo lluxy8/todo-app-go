@@ -1,3 +1,13 @@
+// @title Todo API
+// @version 1.0.0
+// @description This is a simple Todo API server written in Go using MongoDB.
+// @contact.name Murat Can Sahin
+// @contact.email lluxysa@gmail.com
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+// @host localhost:8080
+// @BasePath /
+
 package main
 
 import (
@@ -8,6 +18,7 @@ import (
 	"github.com/lluxy8/todo-app-go/internal/config"
 	"github.com/lluxy8/todo-app-go/internal/router"
 
+	_ "github.com/lluxy8/todo-app-go/docs"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -24,7 +35,6 @@ func main() {
 	}()
 
 	log.Println("MongoDB connected successfully")
-	log.Println("App running on port:", cfg.App.Port)
 
 	db := mongo.Database(cfg.Mongo.Database)
 	todoCollection := db.Collection("todos")
@@ -35,6 +45,8 @@ func main() {
 	if err := r.Run(":" + cfg.App.Port); err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println("App running on port:", cfg.App.Port)
 }
 
 func connectMongo(cfg *config.Config) *mongo.Client {
